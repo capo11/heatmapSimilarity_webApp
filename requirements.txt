@@ -1,2 +1,2 @@
 mplsoccer
-sklearn
+scikit-learn
