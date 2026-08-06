@@ -24,7 +24,8 @@ def get_similarities(player_id, filename='top8_2526', num_x_cells=30, num_y_cell
     player_names = sim_df['player_name']
     player_ids = sim_df['player_id']
     player_pd = sim_df['position_detailed']
-    player_leagues = df['league']
+    player_leagues = sim_df['league']
+    player_teams = sim_df['team']
 
     player_df = sim_df.loc[sim_df['player_id'] == player_id].iloc[0]
     grid = player_df['grid']
@@ -41,6 +42,7 @@ def get_similarities(player_id, filename='top8_2526', num_x_cells=30, num_y_cell
     result_df['position'] = player_pd
     result_df['similarity'] = similarities
     result_df['league'] = player_leagues
+    result_df['team'] = player_teams
     result_df = result_df.sort_values(by=['similarity'], ascending=False)
     return result_df
 
@@ -51,11 +53,14 @@ def plot_players(player_id, filename='top8_2526', num_x_cells=30, num_y_cells=30
     similarities = similarities.drop(columns=['index'])
     player_name1 = similarities.loc[0]['player_name']
     league1 = similarities.loc[0]['league']
+    team1 = similarities.loc[0]['team']
     player_name2 = similarities.loc[1]['player_name']
     league2 = similarities.loc[1]['league']
+    team2 = similarities.loc[1]['team']
     sim_2 = round(similarities.loc[1]['similarity'] * 100, 2)
     player_name3 = similarities.loc[2]['player_name']
     league3 = similarities.loc[2]['league']
+    team3 = similarities.loc[2]['team']
     sim_3 = round(similarities.loc[2]['similarity'] * 100, 2)
 
     compare_df1 = sim_df.loc[sim_df['player_name'] == player_name1].iloc[0]
@@ -71,9 +76,9 @@ def plot_players(player_id, filename='top8_2526', num_x_cells=30, num_y_cells=30
     grid3 = grid_flat3.reshape(num_x_cells,num_y_cells)
     # lista delle 3 matrici da plottare (sostituisci con le tue)
     matrices = [grid1, grid2, grid3]
-    title1 = player_name1 + " - " + league1
-    title2 = player_name2 + " - " + league2 + "\n(Similarity: " + str(sim_2) + "%)"
-    title3 = player_name3 + " - " + league3 + "\n(Similarity: " + str(sim_3) + "%)"
+    title1 = player_name1 + " - " + team1
+    title2 = player_name2 + " - " + team2 + "\n(Similarity: " + str(sim_2) + "%)"
+    title3 = player_name3 + " - " + team3 + "\n(Similarity: " + str(sim_3) + "%)"
     titles = [title1, title2, title3]  # personalizza
 
     pitch = VerticalPitch(pitch_type='opta', line_color='black', pitch_color='white', linewidth=1.5)
@@ -147,13 +152,13 @@ if player_name:
     with col_left:
         for i, row in top10.iloc[0:5].iterrows():
             with st.container(border=True):
-                st.markdown(f"**#{i+1} — {row['player_name']} - {row['league']}**")
+                st.markdown(f"**#{i+1} — {row['player_name']} - {row['team']}**")
                 st.progress(row['similarity'])
                 st.caption(f"{row['similarity']:.1%}")
 
     with col_right:
         for i, row in top10.iloc[5:10].iterrows():
             with st.container(border=True):
-                st.markdown(f"**#{i+1} — {row['player_name']} - {row['league']}**")
+                st.markdown(f"**#{i+1} — {row['player_name']} - {row['team']}**")
                 st.progress(row['similarity'])
                 st.caption(f"{row['similarity']:.1%}")
