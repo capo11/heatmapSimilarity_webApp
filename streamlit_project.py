@@ -123,7 +123,6 @@ df = df.sort_values(by=['player_name'])
 df["player_name"] = df["player_name"].apply(remove_accents)
 
 
-
 st.title("Heatmaps Similarity")
 st.subheader("Search for a player in order to find the most similar players!")
 st.write("Last Update: August 6th, 2026")
@@ -152,13 +151,13 @@ if player_name:
     with col_left:
         for i, row in top10.iloc[0:5].iterrows():
             with st.container(border=True):
-                st.markdown(f"**#{i+1} — {row['player_name']} - {row['team']}**")
+                st.markdown(f"**#{i+1} — {row['player_name']} - {row['team']} - {row['position']}**")
                 st.progress(row['similarity'])
                 st.caption(f"{row['similarity']:.1%}")
 
     with col_right:
         for i, row in top10.iloc[5:10].iterrows():
             with st.container(border=True):
-                st.markdown(f"**#{i+1} — {row['player_name']} - {row['team']}**")
+                st.markdown(f"**#{i+1} — {row['player_name']} - {row['team']} - {row['position']}**")
                 st.progress(row['similarity'])
                 st.caption(f"{row['similarity']:.1%}")
