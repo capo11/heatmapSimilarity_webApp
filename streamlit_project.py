@@ -106,7 +106,7 @@ def plot_players(player_id, filename='top8_2526', num_x_cells=30, num_y_cells=30
 
     fig.colorbar(pcm, ax=axes, shrink=0.6, orientation='horizontal', pad=0.05)
     # plt.show()
-    return fig
+    return fig, similarities
 
 
 df = pd.read_pickle('grids/top8_2526_30_30.pkl')
@@ -132,5 +132,24 @@ player_name = st.selectbox(
 if player_name:
     row = df.loc[df['player_name'] == player_name].iloc[0]
     player_id = row['player_id']
-    fig = plot_players(player_id=player_id)
+    fig, similarities = plot_players(player_id=player_id)
     st.pyplot(fig)
+
+    top10 = similarities.iloc[1:11].reset_index(drop=True)
+    st.subheader("Similarity Top 10")
+
+    col_left, col_right = st.columns(2)
+
+    with col_left:
+        for i, row in top10.iloc[0:5].iterrows():
+            with st.container(border=True):
+                st.markdown(f"**#{i+1} — {row['player_name']}**")
+                st.progress(row['similarity'])
+                st.caption(f"{row['similarity']:.1%}")
+
+    with col_right:
+        for i, row in top10.iloc[5:10].iterrows():
+            with st.container(border=True):
+                st.markdown(f"**#{i+1} — {row['player_name']}**")
+                st.progress(row['similarity'])
+                st.caption(f"{row['similarity']:.1%}")
