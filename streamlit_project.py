@@ -615,7 +615,7 @@ def show_combined(player_name, filename, num_x_cells=5, num_y_cells=5, top=20):
 
 st.title("Player Similarity")
 st.subheader("Search for a player in order to find the most similar players!")
-st.write("Last Update: August 12th, 2026")
+st.write("Last Update: August 14th, 2026")
 
 st.info("This project runs a similarity algorithm, based on player heatmaps. Note therefore that the similarity is based only on movement.  \nData are taken from the 2025/26 season of the top 8 European Leagues (England, Spain, Italy, Germany, France, Netherlands, Belgium, Portugal).")
 

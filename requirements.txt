@@ -1,3 +1,4 @@
 mplsoccer
 scikit-learn
 unidecode
+streamlit-option-menu
