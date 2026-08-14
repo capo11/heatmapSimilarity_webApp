@@ -207,7 +207,8 @@ def plot_players_movements(player_id, filename='seriea_2526', num_x_cells=5, num
                 st.progress(row['similarity'])
                 st.caption(f"**{row['similarity']:.1%}**")
                 with st.expander("Compare players"):
-                    compare_players(player_name, row['player_name'], filename=filename, num_x_cells_tou=num_x_cells, num_y_cells_tou=num_y_cells, top=top, expander=True, type='movement')
+                    # st.write(player_name1, row['player_name'])
+                    compare_players(player_name1, row['player_name'], filename=filename, num_x_cells_tou=num_x_cells, num_y_cells_tou=num_y_cells, top=top, expander=True, type='movement')
 
     with col_right:
         for i, row in top10.iloc[5:10].iterrows():
@@ -217,7 +218,7 @@ def plot_players_movements(player_id, filename='seriea_2526', num_x_cells=5, num
                 st.progress(row['similarity'])
                 st.caption(f"**{row['similarity']:.1%}**")
                 with st.expander("Compare players"):
-                    compare_players(player_name, row['player_name'], filename=filename, num_x_cells_tou=num_x_cells, num_y_cells_tou=num_y_cells, top=top, expander=True, type='movement')
+                    compare_players(player_name1, row['player_name'], filename=filename, num_x_cells_tou=num_x_cells, num_y_cells_tou=num_y_cells, top=top, expander=True, type='movement')
                 
 
 def plot_movements(grid, fig, ax, pitch, num_x_cells=5, num_y_cells=5, vmin=None, vmax=None, top=20):
@@ -371,11 +372,10 @@ def show_movements(num_x_cells=5, num_y_cells=5, top=20, filename='engitager_252
         player_df = df.loc[df['player_name'].str.lower() == alt_name.lower()]
         if len(player_df) == 0:
             st.error(f"Player {player_name} not found!")
-    else:
-        row = player_df.iloc[0]
-        # st.write(row)
-        player_id = row['player_id']
-        plot_players_movements(player_id=player_id, filename=filename, num_x_cells=num_x_cells, num_y_cells=num_y_cells, top=top)
+    row = player_df.iloc[0]
+    # st.write(row)
+    player_id = row['player_id']
+    plot_players_movements(player_id=player_id, filename=filename, num_x_cells=num_x_cells, num_y_cells=num_y_cells, top=top)
         
 
 def compare_heatmaps(player_name1, player_name2, df, num_x_cells, num_y_cells, expander=False):
@@ -430,12 +430,16 @@ def compare_heatmaps(player_name1, player_name2, df, num_x_cells, num_y_cells, e
     st.pyplot(fig)
 
 def compare_movements(player_name1, player_name2, df, num_x_cells, num_y_cells, top=20, expander=False):
-    compare_df1 = df.loc[df['player_name'].str.lower() == player_name1.lower()].iloc[0]
-    grid_flat1 = np.array(compare_df1['grid'])
+    # st.write(player_name1)
+    compare_df1 = df.loc[df['player_name'].str.lower() == player_name1.lower()]
+    # st.write(compare_df1)
+    row = compare_df1.iloc[0]
+    grid_flat1 = np.array(row['grid'])
     grid1 = grid_flat1.reshape(num_x_cells*num_y_cells,num_y_cells*num_x_cells)
 
-    compare_df2 = df.loc[df['player_name'].str.lower() == player_name2.lower()].iloc[0]
-    grid_flat2 = np.array(compare_df2['grid'])
+    compare_df2 = df.loc[df['player_name'].str.lower() == player_name2.lower()]
+    row = compare_df2.iloc[0]
+    grid_flat2 = np.array(row['grid'])
     grid2 = grid_flat2.reshape(num_x_cells*num_y_cells,num_y_cells*num_x_cells)
 
     all_top_vals = np.concatenate([
@@ -467,23 +471,49 @@ def compare_movements(player_name1, player_name2, df, num_x_cells, num_y_cells, 
 
 def compare_players(player_name1, player_name2, filename, num_x_cells_hea=30, num_y_cells_hea=30, num_x_cells_tou=5, num_y_cells_tou=5, top=20, expander=False, type='full'):
     # st.write(player_name1, player_name2)
+    player_name1_hea = player_name1
+    player_name1_tou = player_name1
+    
     if type != 'movement':
         df_hea = pd.read_pickle('grids/' + filename + '_' + str(num_x_cells_hea) + '_' + str(num_y_cells_hea) + '.pkl')
+        df_hea["player_name"] = df_hea["player_name"].apply(unidecode)
+        player_df = df_hea.loc[df_hea['player_name'].str.lower() == player_name.lower()]
+        if len(player_df) == 0:
+            alt_name = find_alt_name(player_name=player_name)
+            player_df = df_hea.loc[df_hea['player_name'].str.lower() == alt_name.lower()]
+            if len(player_df) == 0:
+                st.error(f"Player {player_name} not found!")
+            player_name1_hea = alt_name
     if type != 'heatmap':
         df_tou = pd.read_pickle('grids_movements/' + filename + '_' + str(num_x_cells_tou) + '_' + str(num_y_cells_tou) + '.pkl')
+        df_tou["player_name"] = df_tou["player_name"].apply(unidecode)
+        player_df = df_tou.loc[df_tou['player_name'].str.lower() == player_name.lower()]
+        if len(player_df) == 0:
+            alt_name = find_alt_name(player_name=player_name)
+            player_df = df_tou.loc[df_tou['player_name'].str.lower() == alt_name.lower()]
+            if len(player_df) == 0:
+                st.error(f"Player {player_name} not found!")
+            player_name1_tou = alt_name
+    
+
+    
+    
 
     if not expander:
-        player_df = df_hea.loc[df_hea['player_name'] == player_name].iloc[0]
+        
+        player_df = df_hea.loc[df_hea['player_name'] == player_name1_hea].iloc[0]
         player_id = player_df['player_id']
         sim_mov = get_similarities(player_id=player_id, filename=filename, num_x_cells=num_x_cells, num_y_cells=num_y_cells)
-    
-        player_df = df_tou.loc[df_tou['player_name'] == player_name].iloc[0]
+        sim_mov['player_name'] = sim_mov['player_name'].apply(unidecode)
+
+        player_df = df_tou.loc[df_tou['player_name'] == player_name1_tou].iloc[0]
         player_id = player_df['player_id']
         sim_tou = get_similarities_movements(player_id=player_id, filename=filename, num_x_cells=num_x_cells, num_y_cells=num_y_cells)
-    
-        # print(sim_mov.head())
-        # print(sim_tou.head())
-    
+        sim_tou['player_name'] = sim_tou['player_name'].apply(unidecode)
+
+        # st.write(sim_mov)
+        # st.write(sim_tou)
+
         merged = sim_mov.merge(
             sim_tou,
             on='player_name',
@@ -492,6 +522,7 @@ def compare_players(player_name1, player_name2, filename, num_x_cells_hea=30, nu
         merged['similarity_mixed'] = (merged['similarity_touch'] + merged['similarity_movement'])/2
         merged = merged.sort_values(by=['similarity_mixed'], ascending=False).reset_index()
         merged = merged.drop(columns=['index'])
+        # st.write(merged)
         merged = merged.loc[merged['player_name'] == player_name2].iloc[0]
         hea_sim = merged['similarity_movement']
         tou_sim = merged['similarity_touch']
@@ -547,31 +578,48 @@ def compare_players(player_name1, player_name2, filename, num_x_cells_hea=30, nu
     if type=='full':
         if not expander:
             st.subheader("Heatmap Comparison")
-        compare_heatmaps(player_name1, player_name2, df_hea, num_x_cells_hea, num_y_cells_hea, expander=expander)
+        compare_heatmaps(player_name1_hea, player_name2, df_hea, num_x_cells_hea, num_y_cells_hea, expander=expander)
         if not expander:
             st.subheader("Movements Comparison")
-        compare_movements(player_name1, player_name2, df_tou, num_x_cells_tou, num_y_cells_tou, top=top, expander=expander)
+        compare_movements(player_name1_tou, player_name2, df_tou, num_x_cells_tou, num_y_cells_tou, top=top, expander=expander)
     elif type=='heatmap':
-        compare_heatmaps(player_name1, player_name2, df_hea, num_x_cells_hea, num_y_cells_hea, expander=expander)
+        compare_heatmaps(player_name1_hea, player_name2, df_hea, num_x_cells_hea, num_y_cells_hea, expander=expander)
     elif type=='movement':
-        compare_movements(player_name1, player_name2, df_tou, num_x_cells_tou, num_y_cells_tou, top=top, expander=expander)
+        compare_movements(player_name1_tou, player_name2, df_tou, num_x_cells_tou, num_y_cells_tou, top=top, expander=expander)
         
 def show_combined(player_name, filename, num_x_cells=5, num_y_cells=5, top=20):
     # st.write(player_name)
     df_hea = pd.read_pickle('grids/' + filename + '_30_30.pkl')
+    df_hea["player_name"] = df_hea["player_name"].apply(unidecode)
     df_tou = pd.read_pickle('grids_movements/' + filename + '_' + str(num_x_cells) + '_' + str(num_y_cells) + '.pkl')
+    df_tou["player_name"] = df_tou["player_name"].apply(unidecode)
     # st.write(df_hea)
     # st.write(df_tou)
 
+    player_name_hea = player_name
+    player_name_tou = player_name
 
-    player_df = df_hea.loc[df_hea['player_name'] == player_name].iloc[0]
-    player_id = player_df['player_id']
+    player_df = df_hea.loc[df_hea['player_name'].str.lower() == player_name.lower()]
+    if len(player_df) == 0:
+        alt_name = find_alt_name(player_name=player_name)
+        player_df = df_hea.loc[df_hea['player_name'].str.lower() == alt_name.lower()]
+        if len(player_df) == 0:
+            st.error(f"Player {player_name} not found!")
+    row = player_df.iloc[0]
+    player_id = row['player_id']
     sim_mov = get_similarities(player_id=player_id, filename=filename, num_x_cells=num_x_cells, num_y_cells=num_y_cells)
 
-    player_df = df_tou.loc[df_tou['player_name'] == player_name].iloc[0]
-    player_id = player_df['player_id']
+    player_df = df_tou.loc[df_tou['player_name'].str.lower() == player_name.lower()]
+    if len(player_df) == 0:
+        alt_name = find_alt_name(player_name=player_name)
+        player_df = df_tou.loc[df_tou['player_name'].str.lower() == alt_name.lower()]
+        if len(player_df) == 0:
+            st.error(f"Player {player_name} not found!")
+    row = player_df.iloc[0]
+    player_id = row['player_id']
     sim_tou = get_similarities_movements(player_id=player_id, filename=filename, num_x_cells=num_x_cells, num_y_cells=num_y_cells)
 
+    st.write(player_name_hea, player_name_tou)
     # print(sim_mov.head())
     # print(sim_tou.head())
 
@@ -599,7 +647,7 @@ def show_combined(player_name, filename, num_x_cells=5, num_y_cells=5, top=20):
                 st.progress(row['similarity_mixed'])
                 st.caption(f"**{row['similarity_mixed']:.1%}** ({row['similarity_movement']:.1%} Heatmaps, {row['similarity_touch']:.1%} Movements)")
                 with st.expander("Compare players"):
-                    compare_players(player_name, row['player_name'], filename=filename, num_x_cells_tou=num_x_cells, num_y_cells_tou=num_y_cells, top=top, expander=True)
+                    compare_players(player_name_hea, row['player_name'], filename=filename, num_x_cells_tou=num_x_cells, num_y_cells_tou=num_y_cells, top=top, expander=True)
 
     with col_right:
         for i, row in top10.iloc[5:10].iterrows():
@@ -610,7 +658,7 @@ def show_combined(player_name, filename, num_x_cells=5, num_y_cells=5, top=20):
                 st.progress(row['similarity_mixed'])
                 st.caption(f"**{row['similarity_mixed']:.1%}** ({row['similarity_movement']:.1%} Heatmaps, {row['similarity_touch']:.1%} Movements)")
                 with st.expander("Compare players"):
-                    compare_players(player_name, row['player_name'], filename=filename, num_x_cells_tou=num_x_cells, num_y_cells_tou=num_y_cells, top=top, expander=True)
+                    compare_players(player_name_hea, row['player_name'], filename=filename, num_x_cells_tou=num_x_cells, num_y_cells_tou=num_y_cells, top=top, expander=True)
 
 
 st.title("Player Similarity")
@@ -639,38 +687,49 @@ if player_name:
     if sim_choice == 'Heatmap Similarity':
         show_heatmaps(player_name)
     elif sim_choice == 'Movement Similarity':
-        detailed_movements = st.checkbox('Detailed Movements')
-        less_movements = st.checkbox('Show Less Movements')
-        if detailed_movements:
-            if less_movements:
-                # show_movements(10, 10, 10, player_name=player_name)
-                show_movements(7, 7, 10, player_name=player_name)
-            else:
-                # show_movements(10, 10, 20, player_name=player_name)
-                show_movements(7, 7, 20, player_name=player_name)
+        wide_movements = st.checkbox('Wider Movements')
+        more_movements = st.checkbox('Show More Movements')
+        if wide_movements:
+            num_x_cells = 5
+            num_y_cells = 5
         else:
-            if less_movements:
-                show_movements(5, 5, 10, player_name=player_name)
-                # show_movements(5, 5, 10, mode='movement', filename='seriea_2526')
-            else:
-                show_movements(5, 5, 20, player_name=player_name)
-                # show_movements(5, 5, 20, mode='movement', filename='seriea_2526')
+            num_x_cells = 7
+            num_y_cells = 7
+        if more_movements:
+            top = 20
+        else:
+            top = 10
+        show_movements(num_x_cells=num_x_cells, num_y_cells=num_y_cells, top=top, player_name=player_name)
+        # if not wide_movements:
+        #     if not more_movements:
+        #         # show_movements(10, 10, 10, player_name=player_name)
+        #         show_movements(7, 7, 10, player_name=player_name)
+        #     else:
+        #         # show_movements(10, 10, 20, player_name=player_name)
+        #         show_movements(7, 7, 20, player_name=player_name)
+        # else:
+        #     if not more_movements:
+        #         show_movements(5, 5, 10, player_name=player_name)
+        #         # show_movements(5, 5, 10, mode='movement', filename='seriea_2526')
+        #     else:
+        #         show_movements(5, 5, 20, player_name=player_name)
+        #         # show_movements(5, 5, 20, mode='movement', filename='seriea_2526')
     elif sim_choice == 'Combined Similarity':
-        detailed_movements = st.checkbox('Detailed Movements')
-        less_movements = st.checkbox('Show Less Movements')
-        if detailed_movements:
+        wide_movements = st.checkbox('Wider Movements')
+        more_movements = st.checkbox('Show More Movements')
+        if not wide_movements:
             num_x_cells = 7
             num_y_cells = 7
         else:
             num_x_cells = 5
             num_y_cells = 5
-        if less_movements:
+        if not more_movements:
             top = 10
         else:
             top = 20
         show_combined(player_name, filename='seriea_2526', num_x_cells=num_x_cells, num_y_cells=num_y_cells, top=top)
     elif sim_choice == 'Compare Players':
-        df = pd.read_pickle('grids/top8_2526_30_30.pkl')
+        df = pd.read_pickle('grids/seriea_2526_30_30.pkl')
         df = df.sort_values(by=['player_name'])
         df["player_name"] = df["player_name"].apply(unidecode)
         player_name_compare = st.selectbox(
@@ -680,15 +739,15 @@ if player_name:
             placeholder="Type a Player Name"
         )
         if player_name_compare:
-            detailed_movements = st.checkbox('Detailed Movements')
-            less_movements = st.checkbox('Show Less Movements')
-            if detailed_movements:
+            wide_movements = st.checkbox('Wider Movements')
+            more_movements = st.checkbox('Show More Movements')
+            if not wide_movements:
                 num_x_cells = 7
                 num_y_cells = 7
             else:
                 num_x_cells = 5
                 num_y_cells = 5
-            if less_movements:
+            if not more_movements:
                 top = 10
             else:
                 top = 20
