@@ -112,9 +112,15 @@ def plot_players(player_id, filename='top8_2526', num_x_cells=30, num_y_cells=30
     title3 = player_name3 + " - " + team3 + "\n(Similarity: " + str(sim_3) + "%)"
     titles = [title1, title2, title3]  # personalizza
 
-    pitch = VerticalPitch(pitch_type='opta', line_color='black', pitch_color='white', linewidth=1.5)
+    # pitch = VerticalPitch(pitch_type='opta', line_color='black', pitch_color='white', linewidth=1.5)
+    pitch = VerticalPitch(pitch_type='opta', line_color='white', pitch_color='none', linewidth=1.5)
 
     fig, axes = plt.subplots(1, 3, figsize=(15, 9))
+
+    fig.patch.set_alpha(0)
+    for ax in axes:
+        ax.patch.set_alpha(0)
+
     x_min, x_max = pitch.dim.left, pitch.dim.right
     y_min, y_max = pitch.dim.bottom, pitch.dim.top
     x_edges = np.linspace(x_min, x_max, num_x_cells + 1)
@@ -134,16 +140,26 @@ def plot_players(player_id, filename='top8_2526', num_x_cells=30, num_y_cells=30
             'cy': (y_edges[:-1] + y_edges[1:]) / 2,
         }
 
+
+        dark_blue_red_cmap = LinearSegmentedColormap.from_list(
+            'dark_blue_red', ['#0e1117', '#d90429']
+        )
         teal_cmap = LinearSegmentedColormap.from_list(
             'teal_cmap', ['#FFFFFF', '#0000FF']  # da teal chiarissimo a teal scuro
         )
-        pcm = pitch.heatmap(stats, ax=ax, cmap='Reds', edgecolors='none',
+        pcm = pitch.heatmap(stats, ax=ax, cmap=dark_blue_red_cmap, edgecolors='none',
                             alpha=0.75, zorder=1, vmin=vmin, vmax=vmax)
         pitch.draw(ax=ax)  # ridisegna le linee sopra
-        ax.set_title(title, fontsize=12, color='black')
+        ax.set_title(title, fontsize=12, color='white')
         
 
-    fig.colorbar(pcm, ax=axes, shrink=0.6, orientation='horizontal', pad=0.05)
+    # fig.colorbar(pcm, ax=axes, shrink=0.6, orientation='horizontal', pad=0.05)
+
+    cbar = fig.colorbar(pcm, ax=axes, shrink=0.6, orientation='horizontal', pad=0.05)
+    cbar.ax.xaxis.set_tick_params(color='white')
+    cbar.outline.set_edgecolor('white')
+    plt.setp(plt.getp(cbar.ax.axes, 'xticklabels'), color='white')
+
     # plt.show()
     return fig, similarities
 
@@ -413,12 +429,18 @@ def compare_heatmaps(player_name1, player_name2, df, num_x_cells, num_y_cells, e
     title2 = player_name2
     titles = [title1, title2]
 
-    pitch = VerticalPitch(pitch_type='opta', line_color='black', pitch_color='white', linewidth=1.5)
+    # pitch = VerticalPitch(pitch_type='opta', line_color='black', pitch_color='white', linewidth=1.5)
+    pitch = VerticalPitch(pitch_type='opta', line_color='white', pitch_color='none', linewidth=1.5)
 
     if expander:
         fig, axes = plt.subplots(1, 2, figsize=(7, 7))
     else:
         fig, axes = plt.subplots(1, 2, figsize=(12, 12))
+
+    fig.patch.set_alpha(0)
+    for ax in axes:
+        ax.patch.set_alpha(0)
+
     x_min, x_max = pitch.dim.left, pitch.dim.right
     y_min, y_max = pitch.dim.bottom, pitch.dim.top
     x_edges = np.linspace(x_min, x_max, num_x_cells + 1)
@@ -438,16 +460,24 @@ def compare_heatmaps(player_name1, player_name2, df, num_x_cells, num_y_cells, e
             'cy': (y_edges[:-1] + y_edges[1:]) / 2,
         }
 
+
+        dark_blue_red_cmap = LinearSegmentedColormap.from_list(
+            'dark_blue_red', ['#0e1117', '#d90429']
+        )
         teal_cmap = LinearSegmentedColormap.from_list(
             'teal_cmap', ['#FFFFFF', '#0000FF']  # da teal chiarissimo a teal scuro
         )
-        pcm = pitch.heatmap(stats, ax=ax, cmap='Reds', edgecolors='none',
+        pcm = pitch.heatmap(stats, ax=ax, cmap=dark_blue_red_cmap, edgecolors='none',
                             alpha=0.75, zorder=1, vmin=vmin, vmax=vmax)
         pitch.draw(ax=ax)  # ridisegna le linee sopra
-        ax.set_title(title, fontsize=12, color='black')
+        ax.set_title(title, fontsize=12, color='white')
         
 
-    fig.colorbar(pcm, ax=axes, shrink=0.6, orientation='horizontal', pad=0.05)
+    # fig.colorbar(pcm, ax=axes, shrink=0.6, orientation='horizontal', pad=0.05)
+    cbar = fig.colorbar(pcm, ax=axes, shrink=0.6, orientation='horizontal', pad=0.05)
+    cbar.ax.xaxis.set_tick_params(color='white')
+    cbar.outline.set_edgecolor('white')
+    plt.setp(plt.getp(cbar.ax.axes, 'xticklabels'), color='white')
     st.pyplot(fig)
 
 def compare_movements(player_name1, player_name2, df, num_x_cells, num_y_cells, top=20, expander=False):
