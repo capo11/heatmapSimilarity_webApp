@@ -742,10 +742,10 @@ st.title("Player Similarity")
 st.subheader("Search for a player in order to find the most similar players!")
 st.write("Last Update: August 18th, 2026")
 
-st.info(f"This project runs a similarity algorithm, based on player heatmaps. Note therefore that the similarity is based only on movement.  \nData are taken from the 2025/26 season of the top 5 European Leagues (England, Spain, Italy, Germany, France).   \nComparisons are made between players with at least {played_matches_threshold} matches played during the season in the domestic league.")
+st.info(f"This project runs a similarity algorithm, based on player heatmaps and touches. Note therefore that the similarity is based only on player and ball movement.  \nData are taken from the 2025/26 season of the top 5 European Leagues (England, Spain, Italy, Germany, France).   \nComparisons are made between players with at least {played_matches_threshold} matches played during the season in the domestic league.")
 
-# df = pd.read_pickle('grids/top5_2526_30_30.pkl')
-df = pd.read_pickle('grids/bpl_2526_30_30.pkl')
+df = pd.read_pickle('grids/top5_2526_30_30.pkl')
+# df = pd.read_pickle('grids/bpl_2526_30_30.pkl')
 df = df.loc[df['played_matches'] >= played_matches_threshold]
 df = df.sort_values(by=['player_name'])
 df["player_name"] = df["player_name"].apply(unidecode)
