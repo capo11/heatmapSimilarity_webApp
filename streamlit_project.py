@@ -79,7 +79,7 @@ def get_similarities(player_id, filename='top8_2526', num_x_cells=30, num_y_cell
 def plot_players(player_id, filename='top8_2526', num_x_cells=30, num_y_cells=30):
     sim_df = pd.read_pickle('grids/' + filename + '_30_30.pkl')
     sim_df = sim_df.loc[sim_df['played_matches'] >= played_matches_threshold]
-    similarities = get_similarities(player_id)
+    similarities = get_similarities(player_id, filename=filename)
     similarities = similarities.reset_index()
     similarities = similarities.drop(columns=['index'])
     player_name1 = similarities.loc[0]['player_name']
@@ -351,7 +351,7 @@ def show_heatmaps(player_name, filename='top8_2526'):
     # if player_name:
     row = df.loc[df['player_name'].str.lower() == player_name.lower()].iloc[0]
     player_id = row['player_id']
-    fig, similarities = plot_players(player_id=player_id)
+    fig, similarities = plot_players(player_id=player_id, filename=filename)
     st.pyplot(fig)
 
     top10 = similarities.iloc[1:11].reset_index(drop=True)
@@ -742,9 +742,9 @@ st.title("Player Similarity")
 st.subheader("Search for a player in order to find the most similar players!")
 st.write("Last Update: August 18th, 2026")
 
-st.info("This project runs a similarity algorithm, based on player heatmaps. Note therefore that the similarity is based only on movement.  \nData are taken from the 2025/26 season of the top 5 European Leagues (England, Spain, Italy, Germany, France).")
+st.info(f"This project runs a similarity algorithm, based on player heatmaps. Note therefore that the similarity is based only on movement.  \nData are taken from the 2025/26 season of the top 5 European Leagues (England, Spain, Italy, Germany, France).   \nComparisons are made between players with at least {played_matches_threshold} matches played during the season in the domestic league.")
 
-df = pd.read_pickle('grids/top8_2526_30_30.pkl')
+df = pd.read_pickle('grids/top5_2526_30_30.pkl')
 df = df.loc[df['played_matches'] >= played_matches_threshold]
 df = df.sort_values(by=['player_name'])
 df["player_name"] = df["player_name"].apply(unidecode)
@@ -771,7 +771,7 @@ if player_name:
         default_index=0, orientation="horizontal")
 
     if sim_choice == 'Heatmap Similarity':
-        show_heatmaps(player_name=player_name)
+        show_heatmaps(player_name=player_name, filename='top5_2526')
     elif sim_choice == 'Movement Similarity':
         wide_movements = st.checkbox('Wider Movements')
         more_movements = st.checkbox('Show More Movements')
