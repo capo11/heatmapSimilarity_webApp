@@ -41,7 +41,7 @@ def top_percs(grid, num_x_cells, num_y_cells, top):
     return np.sort(np.array(vals))[::-1][:top]
 
 def get_similarities(player_id, filename='top8_2526', num_x_cells=30, num_y_cells=30):
-    sim_df = pd.read_pickle('grids/' + filename + '_30_30.pkl')
+    sim_df = pd.read_pickle('grids/' + filename + '_' + str(num_x_cells) + '_' + str(num_y_cells) + '.pkl')
     sim_df = sim_df.loc[sim_df['played_matches'] >= played_matches_threshold]
     player_names = sim_df['player_name']
     player_ids = sim_df['player_id']
@@ -77,20 +77,20 @@ def get_similarities(player_id, filename='top8_2526', num_x_cells=30, num_y_cell
     return result_df
 
 def plot_players(player_id, filename='top8_2526', num_x_cells=30, num_y_cells=30):
-    sim_df = pd.read_pickle('grids/' + filename + '_30_30.pkl')
+    sim_df = pd.read_pickle('grids/' + filename + '_' + str(num_x_cells) + '_' + str(num_y_cells) + '.pkl')
     sim_df = sim_df.loc[sim_df['played_matches'] >= played_matches_threshold]
-    similarities = get_similarities(player_id, filename=filename)
+    similarities = get_similarities(player_id, filename=filename, num_x_cells=num_x_cells, num_y_cells=num_y_cells)
     similarities = similarities.reset_index()
     similarities = similarities.drop(columns=['index'])
     player_name1 = similarities.loc[0]['player_name']
-    league1 = similarities.loc[0]['league']
+    # league1 = similarities.loc[0]['league']
     team1 = similarities.loc[0]['team']
     player_name2 = similarities.loc[1]['player_name']
-    league2 = similarities.loc[1]['league']
+    # league2 = similarities.loc[1]['league']
     team2 = similarities.loc[1]['team']
     sim_2 = round(similarities.loc[1]['similarity'] * 100, 2)
     player_name3 = similarities.loc[2]['player_name']
-    league3 = similarities.loc[2]['league']
+    # league3 = similarities.loc[2]['league']
     team3 = similarities.loc[2]['team']
     sim_3 = round(similarities.loc[2]['similarity'] * 100, 2)
 
@@ -335,8 +335,8 @@ def get_similarities_movements(player_id, filename='seriea_2526', num_x_cells=5,
     result_df = result_df.sort_values(by=['similarity'], ascending=False)
     return result_df
 
-def show_heatmaps(player_name, filename='top8_2526'):
-    df = pd.read_pickle('grids/' + filename +'_30_30.pkl')
+def show_heatmaps(player_name, filename='top8_2526', num_x_cells=30, num_y_cells=30):
+    df = pd.read_pickle('grids/' + filename +'_' + str(num_x_cells) + '_' + str(num_y_cells) + '.pkl')
     df = df.loc[df['played_matches'] >= played_matches_threshold]
     df = df.sort_values(by=['player_name'])
     df["player_name"] = df["player_name"].apply(unidecode)
@@ -351,7 +351,7 @@ def show_heatmaps(player_name, filename='top8_2526'):
     # if player_name:
     row = df.loc[df['player_name'].str.lower() == player_name.lower()].iloc[0]
     player_id = row['player_id']
-    fig, similarities = plot_players(player_id=player_id, filename=filename)
+    fig, similarities = plot_players(player_id=player_id, filename=filename, num_x_cells=num_x_cells, num_y_cells=num_y_cells)
     st.pyplot(fig)
 
     top10 = similarities.iloc[1:11].reset_index(drop=True)
@@ -565,7 +565,7 @@ def compare_players(player_name1, player_name2, filename, num_x_cells_hea=30, nu
         else:
             player_df = player_df.iloc[0]
         player_id = player_df['player_id']
-        sim_mov = get_similarities(player_id=player_id, filename=filename, num_x_cells=num_x_cells, num_y_cells=num_y_cells)
+        sim_mov = get_similarities(player_id=player_id, filename=filename)
         sim_mov['player_name'] = sim_mov['player_name'].apply(unidecode)
 
         player_df = df_tou.loc[df_tou['player_name'] == player_name1_tou]
@@ -583,15 +583,15 @@ def compare_players(player_name1, player_name2, filename, num_x_cells_hea=30, nu
         merged = sim_mov.merge(
             sim_tou,
             on='player_name',
-            suffixes=('_touch', '_movement')
+            suffixes=('_heatmap', '_movement')
         )
-        merged['similarity_mixed'] = (merged['similarity_touch'] + merged['similarity_movement'])/2
+        merged['similarity_mixed'] = (merged['similarity_heatmap'] + merged['similarity_movement'])/2
         merged = merged.sort_values(by=['similarity_mixed'], ascending=False).reset_index()
         merged = merged.drop(columns=['index'])
         # st.write(merged)
         merged = merged.loc[merged['player_name'] == player_name2].iloc[0]
-        hea_sim = merged['similarity_movement']
-        tou_sim = merged['similarity_touch']
+        hea_sim = merged['similarity_heatmap']
+        tou_sim = merged['similarity_movement']
         mix_sim = merged['similarity_mixed']
         # st.write(merged)
 
@@ -680,7 +680,7 @@ def show_combined(player_name, filename, num_x_cells=5, num_y_cells=5, top=20):
     else:
         row = player_df.iloc[0]
     player_id = row['player_id']
-    sim_mov = get_similarities(player_id=player_id, filename=filename, num_x_cells=num_x_cells, num_y_cells=num_y_cells)
+    sim_mov = get_similarities(player_id=player_id, filename=filename)
 
     player_df = df_tou.loc[df_tou['player_name'].str.lower() == player_name.lower()]
     if len(player_df) == 0:
@@ -744,7 +744,8 @@ st.write("Last Update: August 18th, 2026")
 
 st.info(f"This project runs a similarity algorithm, based on player heatmaps. Note therefore that the similarity is based only on movement.  \nData are taken from the 2025/26 season of the top 5 European Leagues (England, Spain, Italy, Germany, France).   \nComparisons are made between players with at least {played_matches_threshold} matches played during the season in the domestic league.")
 
-df = pd.read_pickle('grids/top5_2526_30_30.pkl')
+# df = pd.read_pickle('grids/top5_2526_30_30.pkl')
+df = pd.read_pickle('grids/bpl_2526_30_30.pkl')
 df = df.loc[df['played_matches'] >= played_matches_threshold]
 df = df.sort_values(by=['player_name'])
 df["player_name"] = df["player_name"].apply(unidecode)
