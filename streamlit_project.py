@@ -187,7 +187,7 @@ def plot_players_movements(player_id, filename='seriea_2526', num_x_cells=5, num
     for ax in axes:
         pitch.draw(ax=ax)
         ax.patch.set_alpha(0)
-    axes[0].set_title(player_name1, color='white')
+    axes[0].set_title(f"{player_name1} - {team1}", color='white')
     axes[1].set_title(f"{player_name2} - {team2}\n(Similarity: {str(sim_2)}%)", color='white')
     axes[2].set_title(f"{player_name3} - {team3}\n(Similarity: {str(sim_3)}%)", color='white')
     fig, pcm1 = plot_movements(grid1, fig, axes[0], pitch, num_x_cells, num_y_cells, vmin=vmin, vmax=vmax, top=top)
@@ -365,6 +365,7 @@ def show_heatmaps(player_name, filename='top8_2526'):
                 
 
 def show_movements(num_x_cells=5, num_y_cells=5, top=20, filename='engitager_2526', player_name=None):
+    # st.write(filename)
     df = pd.read_pickle('grids_movements/' + filename + '_' + str(num_x_cells) + '_' + str(num_y_cells) + '.pkl')
     df = df.loc[df['played_matches'] >= played_matches_threshold]
     # df = pd.read_pickle('grids_movements_h/' + filename + '_' + str(num_x_cells) + '_' + str(num_y_cells) + '.pkl')
@@ -709,9 +710,9 @@ def show_combined(player_name, filename, num_x_cells=5, num_y_cells=5, top=20):
 
 st.title("Player Similarity")
 st.subheader("Search for a player in order to find the most similar players!")
-st.write("Last Update: August 15th, 2026")
+st.write("Last Update: August 18th, 2026")
 
-st.info("This project runs a similarity algorithm, based on player heatmaps. Note therefore that the similarity is based only on movement.  \nData are taken from the 2025/26 season of the top 8 European Leagues (England, Spain, Italy, Germany, France, Netherlands, Belgium, Portugal).")
+st.info("This project runs a similarity algorithm, based on player heatmaps. Note therefore that the similarity is based only on movement.  \nData are taken from the 2025/26 season of the top 5 European Leagues (England, Spain, Italy, Germany, France).")
 
 df = pd.read_pickle('grids/top8_2526_30_30.pkl')
 df = df.loc[df['played_matches'] >= played_matches_threshold]
@@ -754,7 +755,7 @@ if player_name:
             top = 20
         else:
             top = 10
-        show_movements(num_x_cells=num_x_cells, num_y_cells=num_y_cells, top=top, player_name=player_name, filename='engitager_2526')
+        show_movements(num_x_cells=num_x_cells, num_y_cells=num_y_cells, top=top, player_name=player_name, filename='top5_2526')
     elif sim_choice == 'Combined Similarity':
         wide_movements = st.checkbox('Wider Movements')
         more_movements = st.checkbox('Show More Movements')
@@ -768,9 +769,10 @@ if player_name:
             top = 10
         else:
             top = 20
-        show_combined(player_name, filename='engitager_2526', num_x_cells=num_x_cells, num_y_cells=num_y_cells, top=top)
+        show_combined(player_name, filename='top5_2526', num_x_cells=num_x_cells, num_y_cells=num_y_cells, top=top)
     elif sim_choice == 'Compare Players':
-        df = pd.read_pickle('grids/engitager_2526_30_30.pkl')
+        filename = 'top5_2526'
+        df = pd.read_pickle('grids/' + filename + '_30_30.pkl')
         df = df.loc[df['played_matches'] >= played_matches_threshold]
         df = df.sort_values(by=['player_name'])
         df["player_name"] = df["player_name"].apply(unidecode)
@@ -794,4 +796,4 @@ if player_name:
             else:
                 top = 20
             # compare_players(player_name, player_name_compare)
-            compare_players(player_name, player_name_compare, filename='engitager_2526', num_x_cells_tou=num_x_cells, num_y_cells_tou=num_y_cells, top=top, expander=False)
+            compare_players(player_name, player_name_compare, filename=filename, num_x_cells_tou=num_x_cells, num_y_cells_tou=num_y_cells, top=top, expander=False)
