@@ -142,7 +142,7 @@ def plot_players(player_id, filename='top8_2526', num_x_cells=30, num_y_cells=30
 
 
         dark_blue_red_cmap = LinearSegmentedColormap.from_list(
-            'dark_blue_red', ['#0e1117', '#d90429']
+            'dark_blue_red', ['#0e1117', '#e63946']
         )
         teal_cmap = LinearSegmentedColormap.from_list(
             'teal_cmap', ['#FFFFFF', '#0000FF']  # da teal chiarissimo a teal scuro
